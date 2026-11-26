@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusSwap — Student Skill Exchange Network</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E05336'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' fill='%23fff' font-family='Arial,sans-serif' font-size='34' font-weight='bold'%3E%E2%87%84%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="brand" id="nav-brand" type="button" aria-label="CampusSwap Home">
+        <span class="brand-mark" aria-hidden="true">⇄</span>
+        <span class="brand-text">Campus<span>Swap</span></span>
+      </button>
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <button class="nav-link active" data-view="discover" type="button">
+          Discover Skills
+        </button>
+        <button class="nav-link" data-view="board" type="button">
+          Request Board
+          <span class="nav-pill" id="board-count-badge">0</span>
+        </button>
+        <button class="nav-link" data-view="swaps" type="button">
+          My Swaps
+          <span class="nav-pill alert" id="swaps-badge" hidden>0</span>
+        </button>
+        <button class="nav-link" data-view="leaderboard" type="button">
+          Campus Mentors
+        </button>
+      </nav>
+
+      <div class="topbar-actions">
+        <div class="credit-chip" title="Skill Credits: earn +1 by teaching a session, spend 1 to learn (or swap 1-for-1 free!)">
+          <span class="credit-icon">✦</span>
+          <span id="header-credits">0</span>
+          <span class="credit-label">Credits</span>
+        </div>
+
+        <button class="icon-alert-btn" id="open-mail-modal-btn" type="button" title="Email Notifications">
+          <span aria-hidden="true">✉</span>
+          <span class="nav-pill alert" id="mail-badge" hidden>0</span>
+        </button>
+
+        <button class="btn btn-secondary btn-sm" id="open-post-modal-btn" type="button">
+          + Post Request
+        </button>
+
+        <div class="account-menu-wrap">
+          <button class="account-trigger" id="account-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="avatar sm" id="header-avatar">AR</span>
+            <span class="account-name" id="header-user-name">Student</span>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="account-dropdown" id="account-dropdown" hidden>
+            <div class="dropdown-header">
+              <div class="dropdown-user-title" id="dropdown-user-name">Student</div>
+              <div class="dropdown-user-sub" id="dropdown-user-sub">Major • Year</div>
+            </div>
+            <button class="dropdown-item" data-view-jump="profile" type="button">My Profile &amp; Skills</button>
+            <button class="dropdown-item" id="open-auth-modal-btn" type="button">Switch / Create Student Account</button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger" id="reset-demo-btn" type="button">Reset Demo Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container">
+    <!-- VIEW 1: DISCOVER MARKETPLACE -->
+    <section class="view active" id="view-discover">
+      <div class="hero-banner">
+        <div class="hero-copy">
+          <span class="eyebrow">Peer-to-Peer Student Learning • Zero Fees</span>
+          <h1>Trade what you know for what you want to learn.</h1>
+          <p>
+            Swap Python tutoring for guitar lessons, Figma critiques for Calculus prep, or Spanish conversation for video editing — directly with verified students on campus.
+          </p>
+          <div class="hero-cta-row">
+            <button class="btn btn-primary" id="hero-matches-btn" type="button">
+              Show My Mutual Matches
+            </button>
+            <button class="btn btn-outline" id="hero-profile-btn" type="button">
+              Edit My Skills
+            </button>
+          </div>
+        </div>
+        <div class="hero-stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="stat-students">0</span>
+            <span class="stat-label">Active Students</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-skills">0</span>
+            <span class="stat-label">Skills Offered</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-swaps">0</span>
+            <span class="stat-label">Swaps Completed</span>
+          </div>
+          <div class="stat-card accent">
+            <span class="stat-value" id="stat-matches">0</span>
+            <span class="stat-label">Your Mutual Matches</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter & Search Bar -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            id="discover-search"
+            placeholder="Search skills (e.g. Python, Guitar, Calculus, UI Design, Spanish) or student name..."
+            aria-label="Search skills or students"
+          />
+        </div>
+        <div class="filter-controls">
+          <select id="filter-category" aria-label="Filter by category">
+            <option value="all">All Categories</option>
+            <option value="Tech & Coding">Tech &amp; Coding</option>
+            <option value="Design & Creative">Design &amp; Creative</option>
+            <option value="Academics & Math">Academics &amp; Math</option>
+            <option value="Languages">Languages</option>
+            <option value="Music & Arts">Music &amp; Arts</option>
+            <option value="Career & Prep">Career &amp; Prep</option>
+          </select>
+
+          <select id="filter-format" aria-label="Filter by format">
+            <option value="all">Any Format</option>
+            <option value="In-Person">In-Person (Campus)</option>
+            <option value="Online">Online Video</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+
+          <label class="toggle-chip" for="filter-mutual">
+            <input type="checkbox" id="filter-mutual" />
+            <span>Mutual Matches Only</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="results-meta">
+        <span id="discover-results-count">Showing 0 students</span>
+        <button class="link-btn" id="clear-filters-btn" type="button" hidden>Clear filters</button>
+      </div>
+
+      <div class="students-grid" id="students-grid"></div>
+    </section>
+
+    <!-- VIEW 2: REQUEST BOARD -->
+    <section class="view" id="view-board">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">Campus Bulletin</span>
+          <h2>Open Skill Requests &amp; Offers</h2>
+          <p class="section-sub">Students looking for quick help before exams, projects, or recitals — respond to start a swap.</p>
+        </div>
+        <button class="btn btn-primary" id="board-new-post-btn" type="button">+ New Board Post</button>
+      </div>
+
+      <div class="board-filters">
+        <div class="segmented-control" role="tablist" aria-label="Filter board posts">
+          <button class="seg-btn active" data-board-filter="all" type="button">All Posts</button>
+          <button class="seg-btn" data-board-filter="seeking" type="button">Seeking Help</button>
+          <button class="seg-btn" data-board-filter="offering" type="button">Offering Workshop</button>
+          <button class="seg-btn" data-board-filter="mine" type="button">My Posts</button>
+        </div>
+        <select id="board-category-filter" aria-label="Filter board by category">
+          <option value="all">All Categories</option>
+          <option value="Tech & Coding">Tech &amp; Coding</option>
+          <option value="Design & Creative">Design &amp; Creative</option>
+          <option value="Academics & Math">Academics &amp; Math</option>
+          <option value="Languages">Languages</option>
+          <option value="Music & Arts">Music &amp; Arts</option>
+          <option value="Career & Prep">Career &amp; Prep</option>
+        </select>
+      </div>
+
+      <div class="board-grid" id="board-grid"></div>
+    </section>
+
+    <!-- VIEW 3: MY SWAPS & CHAT -->
+    <section class="view" id="view-swaps">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">Exchange Workspace</span>
+          <h2>My Skill Swaps</h2>
+          <p class="section-sub">Manage incoming requests, chat with swap partners, schedule sessions, and leave reviews.</p>
+        </div>
+      </div>
+
+      <div class="swaps-layout">
+        <div class="swaps-list-pane">
+          <div class="segmented-control full" role="tablist" aria-label="Swap status tabs">
+            <button class="seg-btn active" data-swap-tab="incoming" type="button">
+              Incoming <span class="tab-count" id="tab-count-incoming">0</span>
+            </button>
+            <button class="seg-btn" data-swap-tab="active" type="button">
+              Active <span class="tab-count" id="tab-count-active">0</span>
+            </button>
+            <button class="seg-btn" data-swap-tab="outgoing" type="button">
+              Sent <span class="tab-count" id="tab-count-outgoing">0</span>
+            </button>
+            <button class="seg-btn" data-swap-tab="completed" type="button">
+              Done <span class="tab-count" id="tab-count-completed">0</span>
+            </button>
+          </div>
+
+          <div class="swaps-list" id="swaps-list"></div>
+        </div>
+
+        <div class="swap-detail-pane" id="swap-detail-pane">
+          <div class="empty-state">
+            <div class="empty-icon">⇄</div>
+            <h3>Select a swap to view details &amp; chat</h3>
+            <p>Choose an incoming, active, or completed skill exchange on the left, or browse the marketplace to propose a new one.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: CAMPUS MENTORS LEADERBOARD -->
+    <section class="view" id="view-leaderboard">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">Community Recognition</span>
+          <h2>Top Campus Skill Mentors</h2>
+          <p class="section-sub">Ranked by completed swaps, peer ratings, and hours shared across campus.</p>
+        </div>
+      </div>
+      <div class="leaderboard-list" id="leaderboard-list"></div>
+    </section>
+
+    <!-- VIEW 5: MY PROFILE & SKILLS -->
+    <section class="view" id="view-profile">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">Student Profile</span>
+          <h2>Manage Your Skills &amp; Availability</h2>
+          <p class="section-sub">Keep your offered and wanted skills updated to unlock better mutual matches.</p>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <div class="card profile-form-card">
+          <h3>Basic Information</h3>
+          <form id="profile-basic-form" class="stack-form">
+            <div class="form-row two">
+              <label>
+                Full Name
+                <input type="text" id="prof-name" required maxlength="50" />
+              </label>
+              <label>
+                Student Email Address
+                <input type="email" id="prof-email" required maxlength="80" placeholder="you@university.edu" />
+              </label>
+            </div>
+            <div class="form-row two">
+              <label>
+                Campus / University
+                <input type="text" id="prof-campus" required maxlength="60" />
+              </label>
+              <label>
+                Major / Department
+                <input type="text" id="prof-major" required maxlength="50" />
+              </label>
+            </div>
+            <div class="form-row two">
+              <label>
+                Academic Year
+                <select id="prof-year">
+                  <option value="Freshman">Freshman</option>
+                  <option value="Sophomore">Sophomore</option>
+                  <option value="Junior">Junior</option>
+                  <option value="Senior">Senior</option>
+                  <option value="Grad Student">Grad Student</option>
+                </select>
+              </label>
+              <label>
+                Preferred Format
+                <select id="prof-format">
+                  <option value="Hybrid">Hybrid (Campus &amp; Online)</option>
+                  <option value="In-Person">In-Person (Campus)</option>
+                  <option value="Online">Online Video</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              Availability
+              <input type="text" id="prof-availability" placeholder="e.g. Tue/Thu evenings, Weekends" maxlength="60" />
+            </label>
+            <label>
+              Short Bio
+              <textarea id="prof-bio" rows="3" maxlength="260" placeholder="Tell peers how you like to teach and what you're excited to learn..."></textarea>
+            </label>
+
+            <div class="alert-prefs-box">
+              <label class="checkbox-row">
+                <input type="checkbox" id="prof-notify-email" />
+                <span>Send email alerts to my address when peers publish matching posts</span>
+              </label>
+              <label>
+                Extra Interested Keywords for Email Alerts (comma-separated)
+                <input type="text" id="prof-alert-keywords" placeholder="e.g. Figma, Guitar, Calculus, React" maxlength="140" />
+              </label>
+              <div>
+                <div class="skills-group-label" style="margin-bottom:6px;">Subscribed Post Categories</div>
+                <div class="category-checks" id="prof-alert-categories">
+                  <label class="toggle-chip"><input type="checkbox" value="Tech & Coding" /><span>Tech &amp; Coding</span></label>
+                  <label class="toggle-chip"><input type="checkbox" value="Design & Creative" /><span>Design &amp; Creative</span></label>
+                  <label class="toggle-chip"><input type="checkbox" value="Academics & Math" /><span>Academics &amp; Math</span></label>
+                  <label class="toggle-chip"><input type="checkbox" value="Languages" /><span>Languages</span></label>
+                  <label class="toggle-chip"><input type="checkbox" value="Music & Arts" /><span>Music &amp; Arts</span></label>
+                  <label class="toggle-chip"><input type="checkbox" value="Career & Prep" /><span>Career &amp; Prep</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Save Profile &amp; Alert Settings</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="profile-skills-col">
+          <div class="card">
+            <div class="card-head-row">
+              <h3>Skills I Can Teach</h3>
+              <span class="badge green">Offering</span>
+            </div>
+            <div class="editable-skills-list" id="prof-teach-list"></div>
+            <form id="add-teach-form" class="inline-add-form">
+              <input type="text" id="new-teach-name" placeholder="Skill (e.g. React, Violin)" required maxlength="36" />
+              <select id="new-teach-cat">
+                <option value="Tech & Coding">Tech &amp; Coding</option>
+                <option value="Design & Creative">Design &amp; Creative</option>
+                <option value="Academics & Math">Academics &amp; Math</option>
+                <option value="Languages">Languages</option>
+                <option value="Music & Arts">Music &amp; Arts</option>
+                <option value="Career & Prep">Career &amp; Prep</option>
+              </select>
+              <select id="new-teach-level">
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Expert">Expert</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" type="submit">Add</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head-row">
+              <h3>Skills I Want to Learn</h3>
+              <span class="badge indigo">Seeking</span>
+            </div>
+            <div class="editable-skills-list" id="prof-learn-list"></div>
+            <form id="add-learn-form" class="inline-add-form">
+              <input type="text" id="new-learn-name" placeholder="Skill (e.g. Spanish, Blender 3D)" required maxlength="36" />
+              <select id="new-learn-cat">
+                <option value="Tech & Coding">Tech &amp; Coding</option>
+                <option value="Design & Creative">Design &amp; Creative</option>
+                <option value="Academics & Math">Academics &amp; Math</option>
+                <option value="Languages">Languages</option>
+                <option value="Music & Arts">Music &amp; Arts</option>
+                <option value="Career & Prep">Career &amp; Prep</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" type="submit">Add</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head-row">
+              <h3>My Request Board Posts</h3>
+              <button class="btn btn-secondary btn-sm" id="profile-add-post-btn" type="button">+ Add Post</button>
+            </div>
+            <div id="prof-my-posts-list" class="reviews-list"></div>
+          </div>
+
+          <div class="card">
+            <h3>Reviews From Peers</h3>
+            <div id="prof-reviews-list" class="reviews-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: STUDENT DETAIL PROFILE -->
+  <div class="modal-backdrop" id="modal-student-detail" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+      <button class="modal-close" data-close-modal type="button" aria-label="Close">×</button>
+      <div id="student-detail-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROPOSE A SWAP -->
+  <div class="modal-backdrop" id="modal-propose-swap" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="propose-modal-title">
+      <button class="modal-close" data-close-modal type="button" aria-label="Close">×</button>
+      <h2 id="propose-modal-title">Propose a Skill Swap</h2>
+      <p class="modal-sub" id="propose-target-sub">Exchange skills directly or use 1 Skill Credit.</p>
+      <form id="propose-swap-form" class="stack-form">
+        <input type="hidden" id="propose-recipient-id" />
+        <label>
+          Swap Mode
+          <select id="propose-mode">
+            <option value="direct">1-for-1 Skill Swap (Free — Teach &amp; Learn)</option>
+            <option value="credit">Learn with 1 Skill Credit (No teaching needed)</option>
+          </select>
+        </label>
+        <div class="form-row two">
+          <label id="propose-offer-wrap">
+            Skill You Will Teach
+            <select id="propose-offer-skill"></select>
+          </label>
+          <label>
+            Skill You Want to Learn
+            <select id="propose-request-skill"></select>
+          </label>
+        </div>
+        <div class="form-row two">
+          <label>
+            Session Format &amp; Spot
+            <input type="text" id="propose-location" placeholder="e.g. Science Library Study Room 2B or Zoom" required maxlength="70" />
+          </label>
+          <label>
+            Proposed Date &amp; Time
+            <input type="text" id="propose-datetime" placeholder="e.g. Thu 4:30 PM (60 min)" required maxlength="50" />
+          </label>
+        </div>
+        <label>
+          Intro Message
+          <textarea id="propose-message" rows="3" required maxlength="300" placeholder="Hi! I'd love to learn this from you. Here's my background and what I can help you with..."></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-outline" data-close-modal type="button">Cancel</button>
+          <button class="btn btn-primary" type="submit">Send Swap Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW BOARD POST -->
+  <div class="modal-backdrop" id="modal-new-post" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="post-modal-title">
+      <button class="modal-close" data-close-modal type="button" aria-label="Close">×</button>
+      <h2 id="post-modal-title">Post to Campus Request Board</h2>
+      <p class="modal-sub">Ask for help on an upcoming exam/project or offer a mini skill session.</p>
+      <form id="new-post-form" class="stack-form">
+        <div class="form-row two">
+          <label>
+            Post Type
+            <select id="post-type">
+              <option value="seeking">Seeking Help (Trade or Credit)</option>
+              <option value="offering">Offering Mini-Session</option>
+            </select>
+          </label>
+          <label>
+            Category
+            <select id="post-category">
+              <option value="Tech & Coding">Tech &amp; Coding</option>
+              <option value="Design & Creative">Design &amp; Creative</option>
+              <option value="Academics & Math">Academics &amp; Math</option>
+              <option value="Languages">Languages</option>
+              <option value="Music & Arts">Music &amp; Arts</option>
+              <option value="Career & Prep">Career &amp; Prep</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          Headline
+          <input type="text" id="post-title" required maxlength="85" placeholder="e.g. Need help with Linear Algebra proofs before Friday quiz" />
+        </label>
+        <label>
+          Details &amp; What You Can Offer in Return
+          <textarea id="post-details" rows="3" required maxlength="300" placeholder="Explain what you need and what skill you'd be happy to swap..."></textarea>
+        </label>
+        <div class="form-row two">
+          <label>
+            Skill Needed / Offered
+            <input type="text" id="post-skill-tag" required maxlength="36" placeholder="e.g. Linear Algebra" />
+          </label>
+          <label>
+            Preferred Timing
+            <input type="text" id="post-timing" required maxlength="40" placeholder="e.g. This week, 1 hour" />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-outline" data-close-modal type="button">Cancel</button>
+          <button class="btn btn-primary" type="submit">Publish Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SWITCH OR CREATE STUDENT ACCOUNT -->
+  <div class="modal-backdrop" id="modal-auth" hidden>
+    <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <button class="modal-close" data-close-modal type="button" aria-label="Close">×</button>
+      <h2 id="auth-modal-title">Switch or Create Student Account</h2>
+      <p class="modal-sub">Test both sides of a skill exchange by switching profiles, or register as a new student.</p>
+
+      <div class="auth-columns">
+        <div>
+          <h3>Existing Campus Profiles</h3>
+          <div class="switch-user-list" id="switch-user-list"></div>
+        </div>
+
+        <div>
+          <h3>Register New Student</h3>
+          <form id="register-student-form" class="stack-form">
+            <label>
+              Full Name
+              <input type="text" id="reg-name" required maxlength="50" placeholder="e.g. Jordan Rivera" />
+            </label>
+            <label>
+              Student Email (for skill alerts)
+              <input type="email" id="reg-email" required maxlength="80" placeholder="e.g. jordan.rivera@northgate.edu" />
+            </label>
+            <div class="form-row two">
+              <label>
+                Major
+                <input type="text" id="reg-major" required maxlength="50" placeholder="e.g. Mechanical Eng." />
+              </label>
+              <label>
+                Year
+                <select id="reg-year">
+                  <option value="Freshman">Freshman</option>
+                  <option value="Sophomore">Sophomore</option>
+                  <option value="Junior" selected>Junior</option>
+                  <option value="Senior">Senior</option>
+                  <option value="Grad Student">Grad Student</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              Campus / University
+              <input type="text" id="reg-campus" value="Northgate University" required maxlength="60" />
+            </label>
+            <label>
+              One Skill You Can Teach
+              <input type="text" id="reg-teach" required maxlength="36" placeholder="e.g. CAD / SolidWorks" />
+            </label>
+            <label>
+              One Skill You Want to Learn
+              <input type="text" id="reg-learn" required maxlength="36" placeholder="e.g. Python" />
+            </label>
+            <button class="btn btn-primary" type="submit">Create Profile &amp; Sign In</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: COMPLETE SWAP & REVIEW -->
+  <div class="modal-backdrop" id="modal-review" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+      <button class="modal-close" data-close-modal type="button" aria-label="Close">×</button>
+      <h2 id="review-modal-title">Complete Swap &amp; Rate Partner</h2>
+      <p class="modal-sub" id="review-target-sub">Confirm your session happened and share feedback.</p>
+      <form id="review-form" class="stack-form">
+        <input type="hidden" id="review-swap-id" />
+        <label>
+          Rating (1–5 Stars)
+          <select id="review-rating">
+            <option value="5">★★★★★ — 5/5 (Outstanding Mentor)</option>
+            <option value="4">★★★★☆ — 4/5 (Great Session)</option>
+            <option value="3">★★★☆☆ — 3/5 (Helpful)</option>
+            <option value="2">★★☆☆☆ — 2/5 (Okay)</option>
+            <option value="1">★☆☆☆☆ — 1/5 (Needs Improvement)</option>
+          </select>
+        </label>
+        <label>
+          Written Review
+          <textarea id="review-comment" rows="3" required maxlength="250" placeholder="What did you learn? How was their teaching style?"></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-outline" data-close-modal type="button">Cancel</button>
+          <button class="btn btn-primary" type="submit">Complete &amp; Submit Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MAIL ALERTS INBOX -->
+  <div class="modal-backdrop" id="modal-mail-alerts" hidden>
+    <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="mail-modal-title">
+      <button class="modal-close" data-close-modal type="button" aria-label="Close">×</button>
+      <div class="mail-modal-top">
+        <div>
+          <h2 id="mail-modal-title">Email Notifications</h2>
+          <p class="modal-sub" id="mail-target-sub">Instant alerts delivered when peers post skills matching your interests.</p>
+        </div>
+        <div class="mail-header-actions">
+          <button class="btn btn-outline btn-sm" id="mark-all-mail-read-btn" type="button">Mark All Read</button>
+          <button class="btn btn-outline btn-sm" id="open-alert-prefs-btn" type="button">Alert Settings</button>
+        </div>
+      </div>
+      <div class="mail-list" id="mail-alerts-list"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script defer src="js/data.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+</html>
